@@ -11,8 +11,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+// import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
-import org.springframework.web.client.RestTemplate;
+// import org.springframework.web.client.RestTemplate;
 
 
 public class PortfolioManagerApplication {
@@ -45,8 +46,15 @@ public class PortfolioManagerApplication {
   //  2. You can use "./gradlew build" to check if your code builds successfully.
 
   public static List<String> mainReadFile(String[] args) throws IOException, URISyntaxException {
-
-     return Collections.emptyList();
+     //System.out.println(args[0]);
+    ObjectMapper ob=getObjectMapper();
+    List<String> l=new ArrayList<String>();
+    PortfolioTrade[] pf=ob.readValue(resolveFileFromResources(args[0]),PortfolioTrade[].class);
+    for(PortfolioTrade p:pf){
+      l.add(p.getSymbol());
+    }
+    //  return Collections.emptyList();
+    return l;
   }
 
 
@@ -117,10 +125,11 @@ public class PortfolioManagerApplication {
   public static List<String> debugOutputs() {
 
      String valueOfArgument0 = "trades.json";
-     String resultOfResolveFilePathArgs0 = "";
-     String toStringOfObjectMapper = "";
-     String functionNameFromTestFileInStackTrace = "";
-     String lineNumberFromTestFileInStackTrace = "";
+     String resultOfResolveFilePathArgs0 = "/home/crio-user/workspace/tusharporje13091999-ME_QMONEY_V2/qmoney/bin/main/trades.json"
+     ;
+     String toStringOfObjectMapper = "com.fasterxml.jackson.databind.ObjectMapper@1573f9fc";
+     String functionNameFromTestFileInStackTrace = "mainReadFile()";
+     String lineNumberFromTestFileInStackTrace = "29";
 
 
     return Arrays.asList(new String[]{valueOfArgument0, resultOfResolveFilePathArgs0,
