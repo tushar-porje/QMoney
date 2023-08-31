@@ -230,12 +230,11 @@ public class PortfolioManagerApplication {
   }
 
 
-  public static List<Candle> fetchCandles(PortfolioTrade trade, LocalDate endDate, String token)
-   throws IOException, URISyntaxException {
+  public static List<Candle> fetchCandles(PortfolioTrade trade, LocalDate endDate, String token)throws IOException, URISyntaxException {
     RestTemplate restTemplate=new RestTemplate();
-    URI uri=new URI(prepareUrl(trade,endDate,getToken()));
-    Candle[] respoCandle = restTemplate.getForObject(uri,TiingoCandle[].class);
-    return Arrays.asList(respoCandle);
+    String uri=prepareUrl(trade,endDate,getToken());
+    TiingoCandle[] respoCandle = restTemplate.getForObject(uri,TiingoCandle[].class);
+    return Arrays.stream(respoCandle).collect(Collectors.toList());
   }
 
   public static List<AnnualizedReturn> mainCalculateSingleReturn(String[] args)
