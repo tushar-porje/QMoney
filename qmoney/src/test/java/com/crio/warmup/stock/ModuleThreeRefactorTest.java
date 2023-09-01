@@ -49,7 +49,8 @@ class ModuleThreeRefactorTest {
   }
 
   @Test
-  public void fetchCandles() throws IOException, URISyntaxException {
+  // public void fetchCandles() throws IOException, URISyntaxException {
+  public void fetchCandles() throws JsonProcessingException {
     PortfolioTrade trade = new PortfolioTrade();
     trade.setPurchaseDate(LocalDate.parse("2020-01-01"));
     trade.setSymbol("AAPL");
