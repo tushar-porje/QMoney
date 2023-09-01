@@ -72,11 +72,12 @@ public class PortfolioManagerImpl implements PortfolioManager {
             double annualized_returns = Math.pow((1 + totalReturn),(1 / total_num_years)) - 1;
             annualizedReturnsList.add(new AnnualizedReturn(pf.getSymbol(), annualized_returns, totalReturn));
           }
-          Collections.sort(annualizedReturnsList, new Comparator<AnnualizedReturn>(){
-            public int compare(AnnualizedReturn s1,AnnualizedReturn s2){  
-              return s2.getAnnualizedReturn().compareTo(s1.getAnnualizedReturn());  
-              }  
-          });       
+          Collections.sort(annualizedReturnsList,getComparator());
+          // Collections.sort(annualizedReturnsList, new Comparator<AnnualizedReturn>(){
+          //   public int compare(AnnualizedReturn s1,AnnualizedReturn s2){  
+          //     return s2.getAnnualizedReturn().compareTo(s1.getAnnualizedReturn());  
+          //     }  
+          // });       
     return annualizedReturnsList;
     }
 
@@ -124,8 +125,8 @@ public class PortfolioManagerImpl implements PortfolioManager {
   }
   
   public static String getToken(){
-    // return "e1e1f51f982170a0d40fd5b182f1c0760f49e48e";
-    return "59cd0363a623b4be341575d7db6a77caf6a33c15";
+    return "e1e1f51f982170a0d40fd5b182f1c0760f49e48e";
+    // return "59cd0363a623b4be341575d7db6a77caf6a33c15";
   }
 
   
