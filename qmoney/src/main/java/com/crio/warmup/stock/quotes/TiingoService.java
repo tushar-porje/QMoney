@@ -32,7 +32,7 @@ public class TiingoService implements StockQuotesService {
         String uri=buildUri(symbol, from, to);
         // Candle[] candle=restTemplate.getForObject(uri,TiingoCandle[].class);
         String apiResponse=restTemplate.getForObject(uri,String.class);
-        ObjectMapper mapper =new ObjectMapper();
+        ObjectMapper mapper =getObjectMapper();
         Candle[] candle=mapper.readValue(apiResponse, TiingoCandle[].class);
 
         if(candle!=null){
@@ -45,6 +45,12 @@ public class TiingoService implements StockQuotesService {
         // }
         return stocksStartToEndDate;
         
+  }
+
+  private static ObjectMapper getObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    return objectMapper;
   }
 
   protected String buildUri(String symbol, LocalDate startDate, LocalDate endDate) {
