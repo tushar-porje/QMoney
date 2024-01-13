@@ -1,30 +1,18 @@
 
 package com.crio.warmup.stock.portfolio;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
-import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.quotes.StockQuotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.springframework.web.client.RestTemplate;
 
 public class PortfolioManagerImpl implements PortfolioManager {
@@ -33,11 +21,16 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
 
   private RestTemplate restTemplate;
+  private StockQuotesService stockQuotesService;
 
   // Caution: Do not delete or modify the constructor, or else your build will break!
   // This is absolutely necessary for backward compatibility
   protected PortfolioManagerImpl(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
+  }
+
+  PortfolioManagerImpl(StockQuotesService stockQuotesService) {
+    this.stockQuotesService=stockQuotesService;
   }
 
 
@@ -61,23 +54,22 @@ public class PortfolioManagerImpl implements PortfolioManager {
   //       return new AnnualizedReturn(trade.getSymbol(), annualized_returns, totalReturn);
   //   }
       @Override
-    public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,
-        LocalDate endDate) {
+    public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,LocalDate endDate) throws JsonProcessingException{
           List<AnnualizedReturn> annualizedReturnsList=new ArrayList<>();
-          for(PortfolioTrade pf:portfolioTrades){
-            List<Candle> candle=getStockQuote(pf.getSymbol(), pf.getPurchaseDate(),endDate);
-            double totalReturn = (getClosingPriceOnEndDate(candle) - getOpeningPriceOnStartDate(candle)) 
-                                    / getOpeningPriceOnStartDate(candle);
-            double total_num_years = ChronoUnit.DAYS.between(pf.getPurchaseDate(), endDate)/365.2422;
-            double annualized_returns = Math.pow((1 + totalReturn),(1 / total_num_years)) - 1;
-            annualizedReturnsList.add(new AnnualizedReturn(pf.getSymbol(), annualized_returns, totalReturn));
-          }
-          Collections.sort(annualizedReturnsList,getComparator());
-          // Collections.sort(annualizedReturnsList, new Comparator<AnnualizedReturn>(){
-          //   public int compare(AnnualizedReturn s1,AnnualizedReturn s2){  
-          //     return s2.getAnnualizedReturn().compareTo(s1.getAnnualizedReturn());  
-          //     }  
-          // });       
+          // try {
+            for(PortfolioTrade pf:portfolioTrades){
+              List<Candle> candle=getStockQuote(pf.getSymbol(), pf.getPurchaseDate(),endDate);
+              double totalReturn = (getClosingPriceOnEndDate(candle) - getOpeningPriceOnStartDate(candle)) 
+                                      / getOpeningPriceOnStartDate(candle);
+              double total_num_years = ChronoUnit.DAYS.between(pf.getPurchaseDate(), endDate)/365.2422;
+              double annualized_returns = Math.pow((1 + totalReturn),(1 / total_num_years)) - 1;
+              annualizedReturnsList.add(new AnnualizedReturn(pf.getSymbol(), annualized_returns, totalReturn));
+            }
+            Collections.sort(annualizedReturnsList,getComparator());
+          // } catch (Exception e) {
+          //   e.printStackTrace();
+          // }
+                
     return annualizedReturnsList;
     }
 
@@ -93,11 +85,11 @@ public class PortfolioManagerImpl implements PortfolioManager {
   //  Remember to fill out the buildUri function and use that.
 
 
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)
-      /*throws JsonProcessingException*/ {
-        String uri=buildUri(symbol, from, to);
-        Candle[] candle=restTemplate.getForObject(uri,TiingoCandle[].class);
-        return Arrays.asList(candle);
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws JsonProcessingException {
+        // String uri=buildUri(symbol, from, to);
+        // Candle[] candle=restTemplate.getForObject(uri,TiingoCandle[].class);
+        // return Arrays.asList(candle);
+        return stockQuotesService.getStockQuote(symbol, from, to);
   }
 
   protected String buildUri(String symbol, LocalDate startDate, LocalDate endDate) {
