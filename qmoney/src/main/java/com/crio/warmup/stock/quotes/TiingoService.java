@@ -3,6 +3,7 @@ package com.crio.warmup.stock.quotes;
 
 import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -22,8 +23,7 @@ public class TiingoService implements StockQuotesService {
   }
 
   @Override
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)
-      throws JsonProcessingException{
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)throws JsonProcessingException, StockQuoteServiceException{
 
         List<Candle> stocksStartToEndDate=new ArrayList<>();
         if(from.compareTo(to)>=0){
@@ -31,15 +31,20 @@ public class TiingoService implements StockQuotesService {
         }
         String uri=buildUri(symbol, from, to);
         // Candle[] candle=restTemplate.getForObject(uri,TiingoCandle[].class);
-        String apiResponse=restTemplate.getForObject(uri,String.class);
-        ObjectMapper mapper =getObjectMapper();
-        Candle[] candle=mapper.readValue(apiResponse, TiingoCandle[].class);
+        try {
+          String apiResponse=restTemplate.getForObject(uri,String.class);
+          ObjectMapper mapper =getObjectMapper();
+          Candle[] candle=mapper.readValue(apiResponse, TiingoCandle[].class);
 
-        if(candle!=null){
-          stocksStartToEndDate= Arrays.asList(candle);
-        }else{
-          stocksStartToEndDate= Arrays.asList(new Candle[0]);
+          if(candle!=null){
+            stocksStartToEndDate= Arrays.asList(candle);
+          }else{
+            stocksStartToEndDate= Arrays.asList(new Candle[0]);
+          }
+        } catch (Exception e) {
+          throw new StockQuoteServiceException("Error occured when requesting response form tiingo api");
         }
+        
         // for(int i=0;i<candle.length;i++){
         //   stocksStartToEndDate.add(candle[i]);
         // }

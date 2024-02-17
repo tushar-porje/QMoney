@@ -8,6 +8,7 @@ import java.util.Map;
 import com.crio.warmup.stock.dto.AlphavantageCandle;
 import com.crio.warmup.stock.dto.AlphavantageDailyResponse;
 import com.crio.warmup.stock.dto.Candle;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,13 +23,12 @@ public class AlphavantageService implements StockQuotesService {
   }
 
   @Override
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)
-      throws JsonProcessingException {
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to)throws JsonProcessingException , StockQuoteServiceException, RuntimeException{
     String url=buildUri(symbol);
-    AlphavantageDailyResponse alphavantageDailyResponse=restTemplate.getForObject(url,AlphavantageDailyResponse.class);
-    Map<LocalDate,AlphavantageCandle> dailyResponse=alphavantageDailyResponse.getCandles();
-
     List<Candle> stocks=new ArrayList<>();
+    try {
+      AlphavantageDailyResponse alphavantageDailyResponse=restTemplate.getForObject(url,AlphavantageDailyResponse.class);
+    Map<LocalDate,AlphavantageCandle> dailyResponse=alphavantageDailyResponse.getCandles();   
     for(LocalDate date=from;!date.isAfter(to);date=date.plusDays(1)){
       AlphavantageCandle candle=dailyResponse.get(date);
 
@@ -37,6 +37,10 @@ public class AlphavantageService implements StockQuotesService {
         stocks.add(candle);
       }
     }
+    } catch (NullPointerException e) {
+      throw new StockQuoteServiceException("alphavantageService return invalid response",e);
+    }
+    
 
     return stocks;
   }

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
+
 import org.springframework.web.client.RestTemplate;
 
 public class PortfolioManagerImpl implements PortfolioManager {
@@ -54,7 +56,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   //       return new AnnualizedReturn(trade.getSymbol(), annualized_returns, totalReturn);
   //   }
       @Override
-    public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,LocalDate endDate) throws JsonProcessingException{
+    public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,LocalDate endDate) throws JsonProcessingException, StockQuoteServiceException{
           List<AnnualizedReturn> annualizedReturnsList=new ArrayList<>();
           // try {
             for(PortfolioTrade pf:portfolioTrades){
@@ -85,7 +87,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   //  Remember to fill out the buildUri function and use that.
 
 
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws JsonProcessingException {
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws JsonProcessingException, StockQuoteServiceException {
         // String uri=buildUri(symbol, from, to);
         // Candle[] candle=restTemplate.getForObject(uri,TiingoCandle[].class);
         // return Arrays.asList(candle);
